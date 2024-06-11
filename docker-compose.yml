@@ -1,0 +1,52 @@
+name: system-monitor
+
+services:
+  dotnet-app:
+    build:
+      context: .
+      dockerfile: app/dotnet-app/Dockerfile
+    image: dotnet-app
+    container_name: dotnet-app
+    restart: none
+    pull_policy: if_not_present
+    ports:
+      - 8000:8080
+    networks:
+      - monitor
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    pull_policy: if_not_present
+    ports:
+      - 9090:9090
+    networks:
+      - monitor
+    volumes:
+      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    depends_on:
+      - dotnet-app
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    pull_policy: if_not_present
+    ports:
+      - 3000:3000
+    networks:
+      - monitor
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+networks:
+  monitor:
+    name: system-monitor-network
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}

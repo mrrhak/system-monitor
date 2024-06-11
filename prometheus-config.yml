@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+rule_files:
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval:     10s
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'dotnet-app'
+    scrape_interval:     10s
+    static_configs:
+      - targets: ['dotnet-app:8080']
+    metrics_path: '/metrics'
+
